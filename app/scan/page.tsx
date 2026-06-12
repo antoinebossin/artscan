@@ -5,6 +5,7 @@ import Link from "next/link";
 import ThemeShell, { getSavedMode } from "@/components/ThemeShell";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/image";
+import { detectArtwork } from "@/lib/detect";
 
 export default function ScanPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -20,6 +21,7 @@ export default function ScanPage() {
   );
   const [status, setStatus] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [detecting, setDetecting] = useState(false);
   const [done, setDone] = useState(false);
   const supabase = createClient();
 
@@ -55,6 +57,34 @@ export default function ScanPage() {
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
     );
+  };
+
+  const detect = async () => {
+    if (!file) return;
+    setDetecting(true);
+    setStatus(null);
+    try {
+      const blob = await compressImage(file, 1024, 0.8);
+      const d = await detectArtwork(blob, type);
+      if (d.artist) setArtist(d.artist);
+      if (d.title) setTitle(d.title);
+      const conf = { high: "élevée", medium: "moyenne", low: "faible" }[
+        d.confidence
+      ] ?? d.confidence;
+      setStatus(
+        "IA : " +
+          (d.artist ?? "artiste non identifié") +
+          (d.title ? " — " + d.title : "") +
+          " (confiance " + conf + ")" +
+          (d.note ? " · " + d.note : "")
+      );
+    } catch (err) {
+      setStatus(
+        "Erreur IA : " + (err instanceof Error ? err.message : String(err))
+      );
+    } finally {
+      setDetecting(false);
+    }
   };
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -140,6 +170,17 @@ export default function ScanPage() {
             Musée
           </button>
         </div>
+
+        {file && (
+          <button
+            type="button"
+            onClick={detect}
+            disabled={detecting}
+            className="rounded-full border-2 px-4 py-2 text-sm font-bold disabled:opacity-40"
+          >
+            {detecting ? "Analyse en cours..." : "✨ Identifier avec l'IA"}
+          </button>
+        )}
 
         <input
           placeholder="Titre (optionnel)"

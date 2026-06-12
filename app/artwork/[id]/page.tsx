@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import ThemeShell from "@/components/ThemeShell";
 import { createClient } from "@/lib/supabase/client";
+import { detectArtwork } from "@/lib/detect";
 import type { Artwork } from "@/lib/types";
 
 export default function ArtworkEditPage() {
@@ -19,6 +20,7 @@ export default function ArtworkEditPage() {
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [detecting, setDetecting] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -43,6 +45,35 @@ export default function ArtworkEditPage() {
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
+
+  const detect = async () => {
+    if (!artwork) return;
+    setDetecting(true);
+    setStatus(null);
+    try {
+      const res = await fetch(artwork.photo_url);
+      const blob = await res.blob();
+      const d = await detectArtwork(blob, type);
+      if (d.artist) setArtist(d.artist);
+      if (d.title) setTitle(d.title);
+      const conf = { high: "élevée", medium: "moyenne", low: "faible" }[
+        d.confidence
+      ] ?? d.confidence;
+      setStatus(
+        "IA : " +
+          (d.artist ?? "artiste non identifié") +
+          (d.title ? " — " + d.title : "") +
+          " (confiance " + conf + ")" +
+          (d.note ? " · " + d.note : "")
+      );
+    } catch (err) {
+      setStatus(
+        "Erreur IA : " + (err instanceof Error ? err.message : String(err))
+      );
+    } finally {
+      setDetecting(false);
+    }
+  };
 
   const save = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -102,6 +133,15 @@ export default function ArtworkEditPage() {
             alt={title || "Œuvre"}
             className="max-h-80 self-center rounded-lg"
           />
+
+          <button
+            type="button"
+            onClick={detect}
+            disabled={detecting}
+            className="rounded-full border-2 px-4 py-2 text-sm font-bold disabled:opacity-40"
+          >
+            {detecting ? "Analyse en cours..." : "✨ Identifier avec l'IA"}
+          </button>
 
           <div className="flex gap-2">
             <button

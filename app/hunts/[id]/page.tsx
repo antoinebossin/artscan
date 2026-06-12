@@ -7,6 +7,7 @@ import ThemeShell from "@/components/ThemeShell";
 import HuntMap, { type MapPoint } from "@/components/HuntMap";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/image";
+import { blobToBase64 } from "@/lib/detect";
 import { haversineMeters, jitterCoords } from "@/lib/geo";
 import type { Find, Hunt, HuntArtwork, HuntParticipant } from "@/lib/types";
 
@@ -150,22 +151,57 @@ export default function HuntDetailPage() {
   const submitFind = async (item: HuntArtwork, file: File) => {
     if (!me || !userId) return;
     setBusy(item.id);
-    setMsg(null);
+    setMsg("Analyse de ta photo...");
     try {
       const pos = await getPosition();
       const blob = await compressImage(file);
+      const a = item.artworks;
+
+      const gpsKnown = pos !== null && a?.lat != null && a?.lng != null;
+      const gpsOk =
+        gpsKnown && haversineMeters(pos.lat, pos.lng, a.lat!, a.lng!) <= 150;
+
+      let imageMatch: boolean | null = null;
+      let matchNote = "";
+      if (a?.photo_url) {
+        try {
+          const small = await compressImage(file, 1024, 0.8);
+          const photoBase64 = await blobToBase64(small);
+          const res = await fetch("/api/match", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              referenceUrl: a.photo_url,
+              photoBase64,
+            }),
+          });
+          if (res.ok) {
+            const m = (await res.json()) as {
+              same: boolean;
+              confidence: string;
+              note?: string;
+            };
+            imageMatch = m.same && m.confidence !== "low";
+            matchNote = m.note ?? "";
+          }
+        } catch {
+          imageMatch = null;
+        }
+      }
+
+      const autoOk =
+        imageMatch === true
+          ? gpsKnown
+            ? gpsOk
+            : true
+          : imageMatch === null && gpsOk;
+
       const path = userId + "/finds/" + crypto.randomUUID() + ".jpg";
       const { error: upErr } = await supabase.storage
         .from("photos")
         .upload(path, blob, { contentType: "image/jpeg" });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from("photos").getPublicUrl(path);
-      const a = item.artworks;
-      const autoOk =
-        pos !== null &&
-        a?.lat != null &&
-        a?.lng != null &&
-        haversineMeters(pos.lat, pos.lng, a.lat, a.lng) <= 150;
       const { error } = await supabase.from("finds").insert({
         participant_id: me.id,
         hunt_artwork_id: item.id,
@@ -175,11 +211,23 @@ export default function HuntDetailPage() {
         status: autoOk ? "auto_validated" : "pending",
       });
       if (error) throw error;
-      setMsg(
-        autoOk
-          ? "Trouvaille validée par GPS ✓ +" + item.points + " points !"
-          : "Photo envoyée — en attente de validation par le créateur."
-      );
+      if (autoOk) {
+        setMsg(
+          "Trouvaille validée ✓ (photo reconnue" +
+            (gpsOk ? " + GPS" : "") +
+            ") +" +
+            item.points +
+            " points !"
+        );
+      } else if (imageMatch === false) {
+        setMsg(
+          "La photo ne semble pas correspondre à l'œuvre (" +
+            matchNote +
+            ") — envoyée au créateur pour validation manuelle."
+        );
+      } else {
+        setMsg("Photo envoyée — en attente de validation par le créateur.");
+      }
       load();
     } catch (err) {
       setMsg("Erreur : " + (err instanceof Error ? err.message : String(err)));
