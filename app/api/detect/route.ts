@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { AIError, callVisionJSON } from "@/lib/ai";
 
 const PROMPTS = {
   museum: `Tu es un expert en histoire de l'art. Identifie cette oeuvre de musee.
@@ -33,66 +34,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Image manquante" }, { status: 400 });
   }
 
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) {
-    return NextResponse.json(
-      { error: "Détection IA non configurée (GEMINI_API_KEY manquante)" },
-      { status: 500 }
-    );
-  }
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-
-  const res = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/" +
-      model +
-      ":generateContent?key=" +
-      key,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                inline_data: { mime_type: "image/jpeg", data: imageBase64 },
-              },
-              { text: PROMPTS[mode] },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          response_mime_type: "application/json",
-        },
-      }),
-    }
-  );
-
-  if (!res.ok) {
-    const t = await res.text();
-    const hint =
-      res.status === 429
-        ? "Quota gratuit Gemini atteint, réessaie dans une minute."
-        : "Erreur Gemini (" + res.status + ")";
-    console.error("Gemini error", res.status, t.slice(0, 300));
-    return NextResponse.json({ error: hint }, { status: 502 });
-  }
-
-  const json = await res.json();
-  const text: string =
-    json.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  let parsed: unknown = null;
   try {
-    parsed = JSON.parse(text.replace(/```json|```/g, "").trim());
-  } catch {
-    parsed = null;
+    const parsed = await callVisionJSON([imageBase64], PROMPTS[mode]);
+    return NextResponse.json(parsed);
+  } catch (err) {
+    if (err instanceof AIError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
+    return NextResponse.json({ error: "Erreur IA" }, { status: 502 });
   }
-  if (!parsed || typeof parsed !== "object") {
-    return NextResponse.json(
-      { error: "Réponse IA illisible, réessaie." },
-      { status: 502 }
-    );
-  }
-  return NextResponse.json(parsed);
 }
