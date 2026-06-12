@@ -35,13 +35,25 @@ export default function ScanPage() {
   };
 
   const locate = () => {
-    setStatus("Localisation...");
+    if (!("geolocation" in navigator)) {
+      setStatus("GPS non supporté par ce navigateur.");
+      return;
+    }
+    setStatus("Localisation en cours...");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setStatus(null);
       },
-      () => setStatus("Impossible de récupérer la position.")
+      (err) => {
+        const msgs: Record<number, string> = {
+          1: "Accès à la position refusé. Autorise la localisation pour artscan.vercel.app dans les réglages de ton navigateur (iPhone : Réglages > Safari > Position).",
+          2: "Position indisponible. Active le GPS puis réessaie.",
+          3: "Délai dépassé. Réessaie, idéalement en extérieur.",
+        };
+        setStatus(msgs[err.code] ?? "Erreur de localisation inconnue.");
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
     );
   };
 

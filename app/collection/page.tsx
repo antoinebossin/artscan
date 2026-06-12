@@ -105,6 +105,12 @@ export default function CollectionPage() {
                 {a.type === "street" ? "Street art" : "Musée"} ·{" "}
                 {new Date(a.scanned_at).toLocaleDateString("fr-FR")}
               </span>
+              <Link
+                href={"/artwork/" + a.id}
+                className="mt-1 self-start rounded-full border px-2 py-0.5 opacity-70"
+              >
+                Modifier
+              </Link>
               {folders.length > 0 && (
                 <select
                   defaultValue=""
