@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getSavedMode, type Mode } from "@/components/ThemeShell";
+import MusicToggle from "@/components/MusicToggle";
 
 export default function ModeShell({
   render,
@@ -77,6 +78,7 @@ export default function ModeShell({
           <Link href="/hunts">Courses</Link>
         </nav>
         <div className="ml-auto flex items-center gap-3">
+          <MusicToggle mode={mode} />
           <button
             onClick={() => goTo(street ? "museum" : "street")}
             className="rounded-full border px-3 py-1 text-xs"

@@ -47,7 +47,7 @@ export default function JoinHuntPage() {
   }, [params.code]);
 
   return (
-    <ThemeShell>
+    <ThemeShell force="street">
       <div className="mt-16 text-center">
         <p>{msg}</p>
         <p className="mt-4 text-sm">

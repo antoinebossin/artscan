@@ -93,12 +93,18 @@ export default function HuntsPage() {
     );
 
   return (
-    <ThemeShell>
+    <ThemeShell force="street">
       <div className="mb-6 mt-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Courses</h1>
+        <h1
+          className="text-2xl font-black uppercase"
+          style={{ color: "var(--street-accent)" }}
+        >
+          Courses
+        </h1>
         <Link
           href="/hunts/new"
-          className="rounded-full border-2 px-4 py-2 text-sm font-bold"
+          className="rounded-full border-2 px-4 py-2 text-sm font-bold uppercase"
+          style={{ borderColor: "var(--street-accent-2)", color: "var(--street-accent-2)" }}
         >
           + Créer une course
         </Link>

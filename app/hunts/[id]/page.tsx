@@ -254,7 +254,7 @@ export default function HuntDetailPage() {
 
   if (hunt === null) {
     return (
-      <ThemeShell>
+      <ThemeShell force="street">
         <p className="mt-10 opacity-70">
           Course introuvable, non publiée, ou tu n&apos;es pas connecté.
         </p>
@@ -263,14 +263,19 @@ export default function HuntDetailPage() {
   }
 
   return (
-    <ThemeShell>
+    <ThemeShell force="street">
       <p className="mt-4 text-xs opacity-60">
         <Link href="/hunts" className="underline">
           ← Courses
         </Link>
       </p>
       <div className="mb-1 mt-1 flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold">{hunt.name}</h1>
+        <h1
+          className="text-2xl font-black uppercase"
+          style={{ color: "var(--street-accent)" }}
+        >
+          {hunt.name}
+        </h1>
         <span className="rounded-full border px-2 py-0.5 text-xs opacity-70">
           {hunt.is_published ? "Publiée" : "Brouillon"}
         </span>
@@ -436,7 +441,12 @@ export default function HuntDetailPage() {
         </>
       )}
 
-      <h2 className="mb-2 mt-8 text-lg font-bold">Classement</h2>
+      <h2
+        className="mb-2 mt-8 text-lg font-black uppercase"
+        style={{ color: "var(--street-accent-2)" }}
+      >
+        Classement
+      </h2>
       {leaderboard.length === 0 ? (
         <p className="text-sm opacity-60">Aucun participant pour l&apos;instant.</p>
       ) : (
@@ -445,7 +455,11 @@ export default function HuntDetailPage() {
             <li
               key={row.name + idx}
               className="flex items-center justify-between rounded-lg border px-4 py-2 text-sm"
-              style={{ fontWeight: row.isMe ? 700 : 400 }}
+              style={{
+                fontWeight: row.isMe ? 700 : 400,
+                borderColor: idx === 0 ? "var(--street-accent)" : undefined,
+                color: idx === 0 ? "var(--street-accent)" : undefined,
+              }}
             >
               <span>
                 {idx + 1}. {row.name} {row.isMe ? "(toi)" : ""}

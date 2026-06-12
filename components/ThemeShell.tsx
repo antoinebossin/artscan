@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import MusicToggle from "@/components/MusicToggle";
 
 export type Mode = "street" | "museum";
 
@@ -16,8 +17,10 @@ export function getSavedMode(): Mode {
 
 export default function ThemeShell({
   children,
+  force,
 }: {
   children: React.ReactNode;
+  force?: Mode;
 }) {
   const [mode, setModeState] = useState<Mode>("street");
   const [email, setEmail] = useState<string | null>(null);
@@ -25,7 +28,7 @@ export default function ThemeShell({
   const supabase = createClient();
 
   useEffect(() => {
-    setModeState(getSavedMode());
+    setModeState(force ?? getSavedMode());
     supabase.auth.getUser().then(({ data }) => {
       setEmail(data.user?.email ?? null);
     });
@@ -61,13 +64,16 @@ export default function ThemeShell({
           <Link href="/hunts">Courses</Link>
         </nav>
         <div className="ml-auto flex items-center gap-3">
-          <button
-            onClick={() => setMode(street ? "museum" : "street")}
-            className="rounded-full border px-3 py-1 text-xs"
-            style={{ borderColor: accent, color: accent }}
-          >
-            {street ? "Mode musée" : "Mode street"}
-          </button>
+          <MusicToggle mode={mode} />
+          {!force && (
+            <button
+              onClick={() => setMode(street ? "museum" : "street")}
+              className="rounded-full border px-3 py-1 text-xs"
+              style={{ borderColor: accent, color: accent }}
+            >
+              {street ? "Mode musée" : "Mode street"}
+            </button>
+          )}
           {email ? (
             <button
               onClick={async () => {
