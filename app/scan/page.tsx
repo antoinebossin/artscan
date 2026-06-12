@@ -7,6 +7,8 @@ import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/image";
 import { detectArtwork } from "@/lib/detect";
 
+const AI_ENABLED = process.env.NEXT_PUBLIC_AI_ENABLED === "1";
+
 export default function ScanPage() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -171,7 +173,7 @@ export default function ScanPage() {
           </button>
         </div>
 
-        {file && (
+        {file && AI_ENABLED && (
           <button
             type="button"
             onClick={detect}
