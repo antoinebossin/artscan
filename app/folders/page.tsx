@@ -21,6 +21,7 @@ export default function FoldersPage() {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("libre");
   const [msg, setMsg] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
   const supabase = createClient();
 
   const load = async () => {
@@ -45,14 +46,24 @@ export default function FoldersPage() {
 
   const create = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (creating) return;
+    setCreating(true);
     const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) return;
+    if (!userData.user) {
+      setCreating(false);
+      return;
+    }
     const { error } = await supabase.from("folders").insert({
       owner_id: userData.user.id,
       name,
       category,
     });
+    setCreating(false);
     if (error) {
+      if (error.message.includes("folders_owner_name_key")) {
+        setMsg("Tu as déjà un dossier avec ce nom.");
+        return;
+      }
       setMsg("Erreur : " + error.message);
     } else {
       setName("");
@@ -84,8 +95,12 @@ export default function FoldersPage() {
             </option>
           ))}
         </select>
-        <button type="submit" className="rounded-full border px-4 py-2 text-sm font-bold">
-          Créer
+        <button
+          type="submit"
+          disabled={creating}
+          className="rounded-full border px-4 py-2 text-sm font-bold disabled:opacity-40"
+        >
+          {creating ? "..." : "Créer"}
         </button>
       </form>
 
