@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
@@ -55,6 +57,11 @@ export default function Home() {
           >
             Côté musée
           </button>
+          <div className="flex gap-4 text-sm underline opacity-80">
+            <Link href="/scan">Scanner</Link>
+            <Link href="/collection">Ma collection</Link>
+            <Link href="/folders">Dossiers</Link>
+          </div>
         </section>
 
         <section className="swipe-panel theme-museum flex flex-col items-center justify-center gap-6 px-8 text-center">
@@ -84,6 +91,11 @@ export default function Home() {
           >
             Côté street art
           </button>
+          <div className="flex gap-4 text-sm underline opacity-80">
+            <Link href="/scan">Scanner</Link>
+            <Link href="/collection">Ma collection</Link>
+            <Link href="/folders">Dossiers</Link>
+          </div>
         </section>
       </div>
 
