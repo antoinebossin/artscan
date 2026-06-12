@@ -46,3 +46,22 @@
   scroll-snap-stop: always;
   overflow-y: auto;
 }
+
+.mode-swipe {
+  display: flex;
+  flex: 1;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.mode-swipe::-webkit-scrollbar {
+  display: none;
+}
+
+.mode-panel {
+  min-width: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow-y: auto;
+}

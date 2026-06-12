@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import ThemeShell from "@/components/ThemeShell";
 import { createClient } from "@/lib/supabase/client";
@@ -11,6 +11,7 @@ type Item = { artwork_id: string; artworks: Artwork };
 
 export default function FolderDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const [folder, setFolder] = useState<Folder | null>(null);
   const [items, setItems] = useState<Item[] | null>(null);
   const supabase = createClient();
@@ -32,6 +33,20 @@ export default function FolderDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
+  const removeFolder = async () => {
+    if (
+      !window.confirm(
+        "Supprimer ce dossier ? Les œuvres qu'il contient ne seront pas supprimées."
+      )
+    )
+      return;
+    const { error } = await supabase
+      .from("folders")
+      .delete()
+      .eq("id", params.id);
+    if (!error) router.push("/folders");
+  };
+
   const remove = async (artworkId: string) => {
     await supabase
       .from("folder_items")
@@ -48,9 +63,15 @@ export default function FolderDetailPage() {
           ← Mes dossiers
         </Link>
       </p>
-      <h1 className="mb-6 mt-1 text-2xl font-bold">
-        {folder ? folder.name : "..."}
-      </h1>
+      <div className="mb-6 mt-1 flex items-center justify-between">
+        <h1 className="text-2xl font-bold">{folder ? folder.name : "..."}</h1>
+        <button
+          onClick={removeFolder}
+          className="rounded-full border px-3 py-1 text-xs opacity-70"
+        >
+          Supprimer le dossier
+        </button>
+      </div>
 
       {items !== null && items.length === 0 && (
         <p className="opacity-70">
