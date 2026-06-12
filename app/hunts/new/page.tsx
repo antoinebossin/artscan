@@ -89,13 +89,18 @@ export default function NewHuntPage() {
   };
 
   return (
-    <ThemeShell>
+    <ThemeShell force="street">
       <p className="mt-4 text-xs opacity-60">
         <Link href="/hunts" className="underline">
           ← Courses
         </Link>
       </p>
-      <h1 className="mb-6 mt-1 text-2xl font-bold">Créer une course</h1>
+      <h1
+        className="mb-6 mt-1 text-2xl font-black uppercase"
+        style={{ color: "var(--street-accent)" }}
+      >
+        Créer une course
+      </h1>
 
       <form onSubmit={create} className="flex flex-col gap-4">
         <input
