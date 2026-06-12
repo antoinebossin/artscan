@@ -12,6 +12,7 @@ import { haversineMeters, jitterCoords } from "@/lib/geo";
 import type { Find, Hunt, HuntArtwork, HuntParticipant } from "@/lib/types";
 
 const VALID = new Set(["auto_validated", "approved"]);
+const AI_ENABLED = process.env.NEXT_PUBLIC_AI_ENABLED === "1";
 
 export default function HuntDetailPage() {
   const params = useParams<{ id: string }>();
@@ -163,7 +164,7 @@ export default function HuntDetailPage() {
 
       let imageMatch: boolean | null = null;
       let matchNote = "";
-      if (a?.photo_url) {
+      if (AI_ENABLED && a?.photo_url) {
         try {
           const small = await compressImage(file, 1024, 0.8);
           const photoBase64 = await blobToBase64(small);
@@ -189,12 +190,13 @@ export default function HuntDetailPage() {
         }
       }
 
-      const autoOk =
-        imageMatch === true
+      const autoOk = AI_ENABLED
+        ? imageMatch === true
           ? gpsKnown
             ? gpsOk
             : true
-          : imageMatch === null && gpsOk;
+          : imageMatch === null && gpsOk
+        : false;
 
       const path = userId + "/finds/" + crypto.randomUUID() + ".jpg";
       const { error: upErr } = await supabase.storage
@@ -396,6 +398,23 @@ export default function HuntDetailPage() {
                     </p>
                     <p className="text-xs opacity-60">
                       {item?.artworks?.title || "Œuvre"}
+                    </p>
+                    <p className="text-xs opacity-60">
+                      {f.lat != null &&
+                      f.lng != null &&
+                      item?.artworks?.lat != null &&
+                      item?.artworks?.lng != null
+                        ? "GPS : à " +
+                          Math.round(
+                            haversineMeters(
+                              f.lat,
+                              f.lng,
+                              item.artworks.lat,
+                              item.artworks.lng
+                            )
+                          ) +
+                          " m de l'œuvre"
+                        : "Pas de position GPS"}
                     </p>
                   </div>
                   <button

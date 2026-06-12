@@ -6,6 +6,8 @@ import Link from "next/link";
 import ThemeShell from "@/components/ThemeShell";
 import { createClient } from "@/lib/supabase/client";
 import { detectArtwork } from "@/lib/detect";
+
+const AI_ENABLED = process.env.NEXT_PUBLIC_AI_ENABLED === "1";
 import type { Artwork } from "@/lib/types";
 
 export default function ArtworkEditPage() {
@@ -134,14 +136,16 @@ export default function ArtworkEditPage() {
             className="max-h-80 self-center rounded-lg"
           />
 
-          <button
-            type="button"
-            onClick={detect}
-            disabled={detecting}
-            className="rounded-full border-2 px-4 py-2 text-sm font-bold disabled:opacity-40"
-          >
-            {detecting ? "Analyse en cours..." : "✨ Identifier avec l'IA"}
-          </button>
+          {AI_ENABLED && (
+            <button
+              type="button"
+              onClick={detect}
+              disabled={detecting}
+              className="rounded-full border-2 px-4 py-2 text-sm font-bold disabled:opacity-40"
+            >
+              {detecting ? "Analyse en cours..." : "✨ Identifier avec l'IA"}
+            </button>
+          )}
 
           <div className="flex gap-2">
             <button
