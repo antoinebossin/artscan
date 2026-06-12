@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+:root {
+  --street-bg: #0d0d12;
+  --street-surface: #1a1a23;
+  --street-text: #f2f2f5;
+  --street-accent: #c8ff00;
+  --street-accent-2: #ff2d78;
+
+  --museum-bg: #faf6ee;
+  --museum-surface: #ffffff;
+  --museum-text: #2b2419;
+  --museum-accent: #b08d2e;
+  --museum-accent-2: #6b5536;
+}
+
+.theme-street {
+  background: var(--street-bg);
+  color: var(--street-text);
+  font-family: var(--font-sans, ui-sans-serif, system-ui);
+}
+
+.theme-museum {
+  background: var(--museum-bg);
+  color: var(--museum-text);
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.swipe-container {
+  display: flex;
+  width: 100vw;
+  height: 100dvh;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.swipe-container::-webkit-scrollbar {
+  display: none;
+}
+
+.swipe-panel {
+  min-width: 100vw;
+  height: 100dvh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow-y: auto;
+}
