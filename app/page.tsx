@@ -57,10 +57,28 @@ export default function Home() {
           >
             Côté musée
           </button>
-          <div className="flex gap-4 text-sm underline opacity-80">
-            <Link href="/scan">Scanner</Link>
-            <Link href="/collection">Ma collection</Link>
-            <Link href="/folders">Dossiers</Link>
+          <div className="flex w-full max-w-xs flex-col gap-3 text-base font-bold">
+            <Link
+              href="/scan"
+              className="rounded-full border-2 px-6 py-3"
+              style={{ borderColor: "var(--street-accent)", color: "var(--street-accent)" }}
+            >
+              Scanner
+            </Link>
+            <Link
+              href="/collection"
+              className="rounded-full border-2 px-6 py-3"
+              style={{ borderColor: "var(--street-accent)", color: "var(--street-accent)" }}
+            >
+              Ma collection
+            </Link>
+            <Link
+              href="/folders"
+              className="rounded-full border-2 px-6 py-3"
+              style={{ borderColor: "var(--street-accent)", color: "var(--street-accent)" }}
+            >
+              Dossiers
+            </Link>
           </div>
         </section>
 
@@ -91,10 +109,28 @@ export default function Home() {
           >
             Côté street art
           </button>
-          <div className="flex gap-4 text-sm underline opacity-80">
-            <Link href="/scan">Scanner</Link>
-            <Link href="/collection">Ma collection</Link>
-            <Link href="/folders">Dossiers</Link>
+          <div className="flex w-full max-w-xs flex-col gap-3 text-base font-bold">
+            <Link
+              href="/scan"
+              className="rounded-full border-2 px-6 py-3"
+              style={{ borderColor: "var(--museum-accent)", color: "var(--museum-accent)" }}
+            >
+              Scanner
+            </Link>
+            <Link
+              href="/collection"
+              className="rounded-full border-2 px-6 py-3"
+              style={{ borderColor: "var(--museum-accent)", color: "var(--museum-accent)" }}
+            >
+              Ma collection
+            </Link>
+            <Link
+              href="/folders"
+              className="rounded-full border-2 px-6 py-3"
+              style={{ borderColor: "var(--museum-accent)", color: "var(--museum-accent)" }}
+            >
+              Dossiers
+            </Link>
           </div>
         </section>
       </div>

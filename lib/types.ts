@@ -16,4 +16,5 @@ export interface Folder {
   id: string;
   name: string;
   category: string;
+  mode: "street" | "museum";
 }

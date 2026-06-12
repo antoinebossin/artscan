@@ -117,7 +117,6 @@ export default function ScanPage() {
           <input
             type="file"
             accept="image/*"
-            capture="environment"
             className="hidden"
             onChange={(e) => onFile(e.target.files?.[0] ?? null)}
           />
