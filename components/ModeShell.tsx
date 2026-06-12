@@ -74,6 +74,7 @@ export default function ModeShell({
           <Link href="/scan">Scanner</Link>
           <Link href="/collection">Collection</Link>
           <Link href="/folders">Dossiers</Link>
+          <Link href="/hunts">Courses</Link>
         </nav>
         <div className="ml-auto flex items-center gap-3">
           <button

@@ -79,6 +79,13 @@ export default function Home() {
             >
               Dossiers
             </Link>
+            <Link
+              href="/hunts"
+              className="rounded-full border-2 px-6 py-3"
+              style={{ borderColor: "var(--street-accent-2)", color: "var(--street-accent-2)" }}
+            >
+              Courses
+            </Link>
           </div>
         </section>
 
